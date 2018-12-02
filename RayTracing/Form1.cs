@@ -43,30 +43,39 @@ namespace RayTracing
 
             Point3D normal = Side.norm(room.sides[0]);                            // нормаль стороны комнаты
             Point3D center = (up_left + up_right + down_left + down_right) / 4;   // центр стороны комнаты
-            focus = center - normal * 10;
+            focus = center + normal * 10;
 
             room.set_pen(new Pen(Color.Gray));
+            room.sides[0].drawing_pen = new Pen(Color.Green);
             room.sides[3].drawing_pen = new Pen(Color.Fuchsia);
             room.sides[2].drawing_pen = new Pen(Color.Blue);
             room.sides[1].drawing_pen = new Pen(Color.Yellow);
-            room.figure_material = new Material(0, 0, 0.6f, 2f);
+            room.figure_material = new Material(0f, 0, 0.2f, 0.7f);
 
-            Light l = new Light(new Point3D(0, 0, 4f), new Point3D(1f, 1f, 1f));
+            Light l1 = new Light(new Point3D(0f, 2f, 4.9f), new Point3D(1f, 1f, 1f));
+            Light l2 = new Light(new Point3D(-4.9f, -4.9f, 4.8f), new Point3D(1f, 1, 1));
+            lights.Add(l1);
+            lights.Add(l2);
 
-            Sphere s = new Sphere(new Point3D(0, 0, 0), 1f);
-            s.set_pen(new Pen(Color.Green));
-            s.figure_material = new Material(0, 0.5f, 0f, 0f, 2f);
-            s.offset(0.5f, -2, -2);
+            Sphere s1 = new Sphere(new Point3D(3f, 3, -3.7f), 1.5f);
+            s1.set_pen(new Pen(Color.White));
+            s1.figure_material = new Material(0f, 0.9f, 0.1f, 0f, 1.3f);
 
-            Figure cube = Figure.get_Hexahedron(2);
-            cube.offset(0, 1, -3.5f);
+            Sphere s2 = new Sphere(new Point3D(-2.5f, -2, 2.5f), 2f);
+            s2.set_pen(new Pen(Color.White));
+            s2.figure_material = new Material(0.9f, 0f, 0f, 0.1f, 1.5f);
+
+            Figure cube = Figure.get_Hexahedron(2.5f);
+            cube.offset(0, -1, -3.9f);
+            cube.rotate_around(55, "CZ");
             cube.set_pen(new Pen(Color.Red));
-            cube.figure_material = new Material(0f, 1f, 0.4f, 0.2f);
+            cube.figure_material = new Material(0f, 0f, 0.3f, 0.7f, 1.5f);
             
+
             scene.Add(room);
             scene.Add(cube);
-            scene.Add(s);
-            lights.Add(l);
+            scene.Add(s1);
+            scene.Add(s2);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -180,6 +189,7 @@ namespace RayTracing
                 amb.z = (amb.z * m.clr.z);
                 res_color += amb;
 
+                // диффузное освещение
                 if (is_visible(l.point_light, hit_point))
                     res_color += l.shade(hit_point, normal, m.clr, m.diffuse);
             }
@@ -420,7 +430,7 @@ namespace RayTracing
                 return new Point3D(0, 0, 0);
             Point3D U = S.get_point(1) - S.get_point(0);
             Point3D V = S.get_point(S.points.Count - 1) - S.get_point(0);
-            Point3D normal = V * U;
+            Point3D normal = U * V;
             return Point3D.norm(normal);
         }
 
