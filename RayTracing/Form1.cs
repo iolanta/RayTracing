@@ -47,33 +47,46 @@ namespace RayTracing
 
             room.set_pen(new Pen(Color.Gray));
             room.sides[0].drawing_pen = new Pen(Color.Green);
-            room.sides[3].drawing_pen = new Pen(Color.Fuchsia);
-            room.sides[2].drawing_pen = new Pen(Color.Blue);
-            room.sides[1].drawing_pen = new Pen(Color.Yellow);
-            room.figure_material = new Material(0f, 0, 0.2f, 0.7f);
+            room.sides[1].drawing_pen = new Pen(Color.Gold);
+            room.sides[2].drawing_pen = new Pen(Color.DeepPink);
+            room.sides[3].drawing_pen = new Pen(Color.BlueViolet);
+            room.figure_material = new Material(0f, 0, 0.05f, 0.7f);
 
             Light l1 = new Light(new Point3D(0f, 2f, 4.9f), new Point3D(1f, 1f, 1f));
-            Light l2 = new Light(new Point3D(-4.9f, -4.9f, 4.8f), new Point3D(1f, 1, 1));
+            Light l2 = new Light(new Point3D(-4.9f, -4.9f, 4.9f), new Point3D(1f, 1f, 1f));
             lights.Add(l1);
             lights.Add(l2);
 
-            Sphere s1 = new Sphere(new Point3D(3f, 3, -3.7f), 1.5f);
+            Sphere s1 = new Sphere(new Point3D(-2.5f, 1.7f, -3.7f), 1.4f);
             s1.set_pen(new Pen(Color.White));
-            s1.figure_material = new Material(0f, 0.9f, 0.1f, 0f, 1.3f);
+            s1.figure_material = new Material(0.05f, 0.9f, 0f, 0f, 1.05f);
 
             Sphere s2 = new Sphere(new Point3D(-2.5f, -2, 2.5f), 2f);
             s2.set_pen(new Pen(Color.White));
-            s2.figure_material = new Material(0.9f, 0f, 0f, 0.1f, 1.5f);
+            s2.figure_material = new Material(0.9f, 0f, 0f, 0.1f, 1f);
 
-            Figure cube = Figure.get_Hexahedron(2.5f);
-            cube.offset(0, -1, -3.9f);
-            cube.rotate_around(55, "CZ");
-            cube.set_pen(new Pen(Color.Red));
-            cube.figure_material = new Material(0f, 0f, 0.3f, 0.7f, 1.5f);
-            
+            Figure cube1 = Figure.get_Hexahedron(2.8f);
+            cube1.offset(-0.5f, -1, -3.9f);
+            cube1.rotate_around(55, "CZ");
+            cube1.set_pen(new Pen(Color.Aqua));
+            cube1.figure_material = new Material(0f, 0f, 0.1f, 0.7f, 1.5f);
+
+            Figure cube2 = Figure.get_Hexahedron(1.5f);
+            cube2.offset(-0.5f, -0.9f, -1.7f);
+            cube2.rotate_around(120, "CZ");
+            cube2.set_pen(new Pen(Color.White));
+            cube2.figure_material = new Material(0.9f, 0f, 0f, 0.1f, 1.2f);
+
+            Figure cube3 = Figure.get_Hexahedron(2f);
+            cube3.offset(2.7f, 2.5f, -3.95f);
+            cube3.rotate_around(-10, "CZ");
+            cube3.set_pen(new Pen(Color.Red));
+            cube3.figure_material = new Material(0, 0.7f, 0.1f, 0.5f, 1f);
 
             scene.Add(room);
-            scene.Add(cube);
+            scene.Add(cube1);
+            scene.Add(cube2);
+            scene.Add(cube3);
             scene.Add(s1);
             scene.Add(s2);
         }
@@ -97,9 +110,9 @@ namespace RayTracing
         public void run_rayTrace()
         {
             get_pixels();
+
             for(int i = 0; i < w; ++i)
- 
-                for(int j = 0; j < h; ++j)
+                 for(int j = 0; j < h; ++j)
                 {
                     Ray r = new Ray(focus, pixels[i, j]);
                     r.start = new Point3D(pixels[i, j]);
@@ -153,7 +166,7 @@ namespace RayTracing
             if (iter <= 0)
                 return new Point3D(0, 0, 0);
 
-            float t = 0;     // позиция точки пересечения луча с фигурой на луче
+            float t = 0;        // позиция точки пересечения луча с фигурой на луче
             Point3D normal = null;
             Material m = new Material();
             Point3D res_color = new Point3D(0, 0, 0);
@@ -162,7 +175,7 @@ namespace RayTracing
             foreach(Figure fig in scene)
             {
                 if (fig.figure_intersection(r, out float intersect, out Point3D n))
-                    if(intersect < t || t == 0)   // нужна ближайшая фигура к точке наблюдения
+                    if(intersect < t || t == 0)     // нужна ближайшая фигура к точке наблюдения
                     {
                         t = intersect;
                         normal = n;
@@ -235,12 +248,14 @@ namespace RayTracing
             direction = r.direction;
         }
 
+        // отражение
         public Ray reflect(Point3D hit_point, Point3D normal)
         {
             Point3D reflect_dir = direction - 2 * normal * Point3D.scalar(direction, normal);
             return new Ray(hit_point, hit_point + reflect_dir);
         }
 
+        // преломление
         public Ray refract(Point3D hit_point, Point3D normal, float eta)
         {
             Ray res_ray = new Ray();
